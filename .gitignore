@@ -25,4 +25,4 @@ packages/subgraph/build/
 packages/subgraph/src/types/
 
 # config
-config*
+config.js
