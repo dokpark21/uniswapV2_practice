@@ -23,3 +23,7 @@ yarn-error.log*
 # subgraph
 packages/subgraph/build/
 packages/subgraph/src/types/
+
+# config
+config.js
+config.json
