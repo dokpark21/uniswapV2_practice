@@ -10,7 +10,6 @@ ReactDOM.render(
   <React.StrictMode>
     <DAppProvider config={Config}>
       <App />
-      {console.log('hello')}
     </DAppProvider>
   </React.StrictMode>,
   document.getElementById('root')

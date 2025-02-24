@@ -1,6 +1,6 @@
 import abis from '../abis';
 
-export const GetPairInfo = async (web3, allPairs) => {
+export const getPairInfo = async (web3, allPairs) => {
   const pairsInfo = [];
 
   for (let i = 0; i < allPairs.length; i++) {
@@ -12,6 +12,7 @@ export const GetPairInfo = async (web3, allPairs) => {
     const token1Info = await getTokenInfo(web3, token1);
 
     pairsInfo.push({
+      pairAddress: allPairs[i],
       token0,
       token1,
       reserves,

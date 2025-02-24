@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import { useEffect, useState } from 'react';
 import { RouterAddress } from '../config';
-import { GetRouterInfo, GetFactoryInfo } from '../utils';
+import { getRouterInfo, getFactoryInfo } from '../utils';
 import { useConfig } from '@usedapp/core';
 
 export const loadPool = async (providerUrl) => {
@@ -9,8 +9,8 @@ export const loadPool = async (providerUrl) => {
   const web3 = new Web3(provider);
 
   // get router and factory info
-  const routerInfo = await GetRouterInfo(web3, RouterAddress);
-  const factoryInfo = await GetFactoryInfo(web3, routerInfo.factory);
+  const routerInfo = await getRouterInfo(web3, RouterAddress);
+  const factoryInfo = await getFactoryInfo(web3, routerInfo.factory);
 
   return factoryInfo.pairsInfo;
 };

@@ -1,7 +1,7 @@
 import abis from '../abis';
 import { GetPairInfo } from './getPairInfo';
 
-export const GetFactoryInfo = async (web3, factoryAddress) => {
+export const getFactoryInfo = async (web3, factoryAddress) => {
   const factory = new web3.eth.Contract(abis.factoryABI, factoryAddress);
 
   const factoryInfo = {
