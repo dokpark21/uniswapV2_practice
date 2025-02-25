@@ -11,4 +11,5 @@ export {
   getFailureMessage,
   getSucceedMessage,
   useOnClickOutside,
+  useAmountOut,
 } from './exchangeHelper';

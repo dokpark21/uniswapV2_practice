@@ -1,4 +1,9 @@
 import { useEffect } from 'react';
+import { ethers } from 'ethers';
+import { useCall } from '@usedapp/core';
+import abis from '../abis';
+import { Contract } from '@ethersproject/contracts';
+import { RouterAddress } from '../config';
 
 export const getAvailableTokens = (pools) => {
   return pools.reduce((prev, curr) => {
@@ -96,4 +101,29 @@ export const useOnClickOutside = (ref, handler) => {
       document.removeEventListener('touchstart', listener);
     };
   }, [ref, handler]);
+};
+
+export const useAmountOut = (
+  fromToken,
+  toToken,
+  fromTokenValue,
+  pairAddress
+) => {
+  const paramsCheck = fromToken && toToken && fromTokenValue && pairAddress;
+  const valueCheck = fromTokenValue.gt(ethers.utils.parseUnits('0'));
+
+  const contract = new Contract(RouterAddress, abis.routerABI);
+
+  const { value, error } =
+    useCall(
+      paramsCheck && valueCheck
+        ? {
+            contract,
+            method: 'getAmountsOut',
+            args: [fromTokenValue, [fromToken, toToken]],
+          }
+        : null
+    ) ?? {};
+
+  return error ? ethers.utils.parseUnits('0') : value?.amounts[1];
 };

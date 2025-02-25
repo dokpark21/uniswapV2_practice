@@ -8,7 +8,7 @@ import {
 import { ethers } from 'ethers';
 import abis from '../abis';
 import { AmountIn } from './AmountIn';
-// import { AmountOut } from './AmountOut';
+import { AmountOut } from './AmountOut';
 import { Balance } from './Balance';
 import {
   getAvailableTokens,
@@ -24,7 +24,7 @@ import { RouterAddress } from '../config';
 export const Exchange = ({ pools }) => {
   const { account } = useEthers();
   const [fromValue, setFromValue] = useState('');
-  const [fromToken, setFromToken] = useState('Select');
+  const [fromToken, setFromToken] = useState(pools[0].token0);
   const [toToken, setToToken] = useState('');
   const [reset, setReset] = useState(false);
 
@@ -135,13 +135,20 @@ export const Exchange = ({ pools }) => {
           availableTokens={availableTokens}
           isSwapping={isSwapping && hasEnoughBalance}
         />
-        <Balance toTokenBalance={fromTokenBalance} />
+        <Balance balance={fromTokenBalance} />
       </div>
 
       <div>
         <div className="mb-8 w-[100%]">
-          {/* <AmountOut /> */}
-          {/* <Balance /> */}
+          <AmountOut
+            fromToken={fromToken}
+            toToken={toToken}
+            fromTokenValue={fromValueBigNumber}
+            pairAddress={pairAddress}
+            toTokenChange={toTokenChange}
+            counterTokens={counterTokens}
+          />
+          <Balance balance={toTokenBalance} />
         </div>
       </div>
     </div>
