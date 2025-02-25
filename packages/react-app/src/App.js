@@ -4,7 +4,7 @@ import uniswapLogo from './assets/uniswapLogo.png';
 import styles from './styles';
 import { usePool } from './hooks';
 
-import { WalletButton, Loader, Balance } from './components';
+import { WalletButton, Loader, Balance, Exchange } from './components';
 
 export default function App() {
   const { account } = useEthers();
@@ -28,7 +28,17 @@ export default function App() {
           <div className={styles.exchangeBoxWrapper}>
             <div className={styles.exchangeBox}>
               <div className="pink_gradient" />
-              <div className={styles.exchange}></div>
+              <div className={styles.exchange}>
+                {account ? (
+                  isLoading ? (
+                    <Loader title="Loading pools..." />
+                  ) : (
+                    <Exchange pools={pools} />
+                  )
+                ) : (
+                  <Loader title="Please connect your wallet..." />
+                )}
+              </div>
               <div className="blue_gradient" />
             </div>
           </div>

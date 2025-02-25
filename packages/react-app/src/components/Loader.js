@@ -5,11 +5,11 @@ import ethereumLogo from '../assets/ethereumLogo.png';
 export const Loader = ({ title }) => {
   return (
     <div className={styles.loader}>
-      <png
+      <img
         src={ethereumLogo}
         alt="ethereum logo"
         className={styles.loaderImg}
-      ></png>
+      ></img>
       <p className={styles.loaderText}>{title}</p>
     </div>
   );

@@ -10,4 +10,5 @@ export {
   isOperationSucceed,
   getFailureMessage,
   getSucceedMessage,
+  useOnClickOutside,
 } from './exchangeHelper';

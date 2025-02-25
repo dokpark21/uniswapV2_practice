@@ -7,47 +7,50 @@ import {
 } from '@usedapp/core';
 import { ethers } from 'ethers';
 import abis from '../abis';
-import { AmountIn } from './amountIn';
-import { AmountOut } from './amoutOut';
+import { AmountIn } from './AmountIn';
+// import { AmountOut } from './AmountOut';
 import { Balance } from './Balance';
 import {
   getAvailableTokens,
   getCounterToken,
   getPairAddress,
-  isOperationFailed,
   isOperationPending,
-  isOperationSucceed,
   getFailureMessage,
   getSucceedMessage,
 } from '../utils';
 import { Contract } from '@ethersproject/contracts';
-import { ROUTER_ADDRESS } from '../config';
+import { RouterAddress } from '../config';
 
 export const Exchange = ({ pools }) => {
   const { account } = useEthers();
-  const [fromValue, setFromValue] = useState('0');
-  const [fromToken, setFromToken] = useState(pools[0].token0);
+  const [fromValue, setFromValue] = useState('');
+  const [fromToken, setFromToken] = useState('Select');
   const [toToken, setToToken] = useState('');
   const [reset, setReset] = useState(false);
 
   const fromValueBigNumber = ethers.utils.parseUnits(fromValue || '0');
   const availableTokens = getAvailableTokens(pools);
   const counterTokens = getCounterToken(fromToken, pools);
-  const pairAddress = getPairAddress(fromToken, toToken, pools).pairAddress;
+  const pairAddress =
+    getPairAddress(fromToken, toToken, pools)?.pairAddress ?? '';
 
-  const routerContract = new Contract(ROUTER_ADDRESS, abis.routerABI);
-  const fromTokenContract = new Contract(fromToken, abis.erc20ABI);
+  const routerContract = new Contract(RouterAddress, abis.routerABI);
+  const fromTokenContract = new Contract(fromToken, abis.erc20ABI.abi);
   const fromTokenBalance = useTokenBalance(fromToken, account);
   const toTokenBalance = useTokenBalance(toToken, account);
   const fromTokenAllowance =
     useTokenAllowance(fromToken, account) || ethers.utils.parseUnits('0');
 
-  const isAllowanceNeeded = fromValueBigNumber.gt(fromTokenAllowance);
+  const isAllowanceNeeded = fromValueBigNumber.gt(
+    fromTokenAllowance ?? ethers.utils.parseUnits('0')
+  );
   const isInputValueGtThanZero = fromValueBigNumber.gt(
     ethers.utils.parseUnits('0')
   );
 
-  const hasEnoughBalance = fromValueBigNumber.lte(fromTokenBalance);
+  const hasEnoughBalance = fromValueBigNumber.lte(
+    fromTokenBalance ?? ethers.utils.parseUnits('0')
+  );
 
   const {
     state: approveBeforeSwapState,
@@ -78,17 +81,67 @@ export const Exchange = ({ pools }) => {
   const succeedMessage = getSucceedMessage(swapState, approveBeforeSwapState);
   const failureMessage = getFailureMessage(swapState, approveBeforeSwapState);
 
+  const approveRequest = async () => {
+    await sendApprove(RouterAddress, fromValueBigNumber);
+  };
+
+  const swapRequesrt = async () => {
+    await sendSwap(
+      fromValueBigNumber,
+      ethers.utils.parseUnits('0'),
+      [fromToken, toToken],
+      account,
+      Date.now() + 1000 * 60 * 10
+    ).then(() => {
+      setFromValue('0');
+    });
+  };
+
+  const fromTokenChange = (value) => {
+    setFromToken(value);
+    setToToken('');
+  };
+
+  const toTokenChange = (value) => {
+    setToToken(value);
+  };
+
+  const fromValueChange = (value) => {
+    const trimmedValue = value.trim();
+
+    trimmedValue && ethers.utils.parseUnits(trimmedValue);
+    setFromValue(trimmedValue);
+  };
+
+  useEffect(() => {
+    if (succeedMessage || failureMessage) {
+      setTimeout(() => {
+        setReset(true);
+        setFromValue('');
+        setFromToken('');
+        setToToken('');
+      }, 5000);
+    }
+  }, [succeedMessage, failureMessage]);
+
   return (
     <div className="flex flex-col w-full items-center">
       <div className="mb-8">
-        <AmountIn />
-        <Balance />
+        <AmountIn
+          value={fromValue}
+          tokenChange={fromTokenChange}
+          valueChange={fromValueChange}
+          fromToken={fromToken}
+          availableTokens={availableTokens}
+          isSwapping={isSwapping && hasEnoughBalance}
+        />
+        <Balance toTokenBalance={fromTokenBalance} />
       </div>
 
       <div>
         <div className="mb-8 w-[100%]">
-          <AmountOut />
-          <Balance />
+          {/* <AmountOut /> */}
+          {/* <Balance /> */}
         </div>
       </div>
     </div>

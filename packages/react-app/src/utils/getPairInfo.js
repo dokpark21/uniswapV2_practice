@@ -24,7 +24,9 @@ export const getPairInfo = async (web3, allPairs) => {
   return pairsInfo;
 };
 
-const getTokenInfo = async (token) => {
+const getTokenInfo = async (web3, tokenAddress) => {
+  const token = new web3.eth.Contract(abis.erc20ABI.abi, tokenAddress);
+
   const tokenName = await token.methods.name().call();
   const tokenSymbol = await token.methods.symbol().call();
   const tokenDecimals = await token.methods.decimals().call();
