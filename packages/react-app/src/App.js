@@ -4,7 +4,7 @@ import uniswapLogo from './assets/uniswapLogo.png';
 import styles from './styles';
 import { usePool } from './hooks';
 
-import { WalletButton, Loader, Balance, Exchange } from './components';
+import { WalletButton, Loader, Exchange } from './components';
 
 export default function App() {
   const { account } = useEthers();

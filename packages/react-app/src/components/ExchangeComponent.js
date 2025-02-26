@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ERC20,
   useEthers,
   useContractFunction,
   useTokenBalance,
@@ -19,10 +20,12 @@ import {
   getSucceedMessage,
 } from '../utils';
 import { Contract } from '@ethersproject/contracts';
-import { RouterAddress } from '../config';
+import { RouterAddress, Config } from '../config';
+import styles from '../styles';
 
 export const Exchange = ({ pools }) => {
-  const { account } = useEthers();
+  const { library, account } = useEthers();
+  const provider = library?.getSigner() || library;
   const [fromValue, setFromValue] = useState('');
   const [fromToken, setFromToken] = useState(pools[0].token0);
   const [toToken, setToToken] = useState('');
@@ -34,12 +37,14 @@ export const Exchange = ({ pools }) => {
   const pairAddress =
     getPairAddress(fromToken, toToken, pools)?.pairAddress ?? '';
 
-  const routerContract = new Contract(RouterAddress, abis.routerABI);
-  const fromTokenContract = new Contract(fromToken, abis.erc20ABI.abi);
+  const routerContract = new Contract(RouterAddress, abis.routerABI, provider);
+  const fromTokenContract = new Contract(fromToken, ERC20.abi, provider);
+
   const fromTokenBalance = useTokenBalance(fromToken, account);
   const toTokenBalance = useTokenBalance(toToken, account);
   const fromTokenAllowance =
-    useTokenAllowance(fromToken, account) || ethers.utils.parseUnits('0');
+    useTokenAllowance(fromToken, account, RouterAddress) ||
+    ethers.utils.parseUnits('0');
 
   const isAllowanceNeeded = fromValueBigNumber.gt(
     fromTokenAllowance ?? ethers.utils.parseUnits('0')
@@ -85,7 +90,7 @@ export const Exchange = ({ pools }) => {
     await sendApprove(RouterAddress, fromValueBigNumber);
   };
 
-  const swapRequesrt = async () => {
+  const swapRequest = async () => {
     await sendSwap(
       fromValueBigNumber,
       ethers.utils.parseUnits('0'),
@@ -150,6 +155,48 @@ export const Exchange = ({ pools }) => {
           />
           <Balance balance={toTokenBalance} />
         </div>
+
+        {isAllowanceNeeded && !isSwapping ? (
+          <button
+            className={`${
+              canApprove
+                ? 'bg-site-pink text-white'
+                : 'bg-site-dim2 text-site-dim2'
+            } ${styles.actionButton}`}
+            onClick={approveRequest}
+            disabled={!canApprove || !hasEnoughBalance}
+          >
+            {isApproving
+              ? 'Approving...'
+              : hasEnoughBalance
+              ? 'Approve'
+              : 'Insufficient Balance'}
+          </button>
+        ) : (
+          <button
+            className={`${
+              canSwap
+                ? 'bg-site-pink text-white'
+                : 'bg-site-dim2 text-site-dim2'
+            } ${styles.actionButton}`}
+            onClick={swapRequest}
+            disabled={!canSwap}
+          >
+            {isSwapping
+              ? 'Swapping...'
+              : hasEnoughBalance
+              ? 'Swap'
+              : 'Insufficient Balance'}
+          </button>
+        )}
+
+        {failureMessage && !reset ? (
+          <p className={styles.message}>{failureMessage}</p>
+        ) : succeedMessage ? (
+          <p className={styles.message}>{succeedMessage}</p>
+        ) : (
+          ''
+        )}
       </div>
     </div>
   );

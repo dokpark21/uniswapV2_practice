@@ -39,7 +39,7 @@ export const AmountOut = ({
       <input
         placeholder="0.0"
         type="number"
-        value={ethers.utils.formatUnits(amountOut || '0')}
+        value={amountOut || '0'}
         className={styles.amountInput}
         disabled
       />
